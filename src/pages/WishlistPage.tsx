@@ -2,16 +2,41 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart, Trash2, ArrowLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useNotification } from '../context/NotificationContext';
 
 const WishlistPage = () => {
   const { state, dispatch } = useApp();
-
-  const removeFromWishlist = (productId: number) => {
-    dispatch({ type: 'REMOVE_FROM_WISHLIST', payload: productId });
-  };
+  const { showNotification } = useNotification();
 
   const moveToCart = (productId: number) => {
-    dispatch({ type: 'MOVE_TO_CART', payload: productId });
+    const wishlistItem = state.wishlist.find(item => item.product.id === productId);
+    if (wishlistItem) {
+      dispatch({ type: 'ADD_TO_CART', payload: wishlistItem.product });
+      dispatch({ type: 'REMOVE_FROM_WISHLIST', payload: productId });
+      
+      // Show success notification
+      showNotification({
+        type: 'success',
+        title: 'Moved to Cart!',
+        message: `${wishlistItem.product.name} has been moved from wishlist to cart.`,
+        duration: 3000
+      });
+    }
+  };
+
+  const removeFromWishlist = (productId: number) => {
+    const wishlistItem = state.wishlist.find(item => item.product.id === productId);
+    if (wishlistItem) {
+      dispatch({ type: 'REMOVE_FROM_WISHLIST', payload: productId });
+      
+      // Show info notification
+      showNotification({
+        type: 'info',
+        title: 'Removed from Wishlist',
+        message: `${wishlistItem.product.name} has been removed from your wishlist.`,
+        duration: 3000
+      });
+    }
   };
 
   if (state.wishlist.length === 0) {
@@ -22,7 +47,7 @@ const WishlistPage = () => {
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Your wishlist is empty</h1>
           <p className="text-gray-600 mb-8">Save products you love for later by clicking the heart icon!</p>
           <Link 
-            to="/" 
+            to="/explore" 
             className="inline-flex items-center space-x-2 px-6 py-3 bg-[#65E856] text-white font-medium rounded-lg hover:bg-[#56d947] transition-colors duration-200"
           >
             <span>Explore Products</span>
@@ -38,7 +63,7 @@ const WishlistPage = () => {
         {/* Header */}
         <div className="mb-8">
           <Link 
-            to="/" 
+            to="/explore" 
             className="inline-flex items-center space-x-2 text-gray-600 hover:text-[#65E856] mb-4 transition-colors duration-200"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -139,13 +164,24 @@ const WishlistPage = () => {
             <p className="text-gray-600 mb-4">Add all wishlist items to your cart at once!</p>
             <button
               onClick={() => {
-                state.wishlist.forEach(item => {
-                  dispatch({ type: 'ADD_TO_CART', payload: item.product });
-                });
-                dispatch({ type: 'CLEAR_CART' });
-                state.wishlist.forEach(item => {
-                  dispatch({ type: 'REMOVE_FROM_WISHLIST', payload: item.product.id });
-                });
+                const itemCount = state.wishlist.length;
+                if (itemCount > 0) {
+                  state.wishlist.forEach(item => {
+                    dispatch({ type: 'ADD_TO_CART', payload: item.product });
+                  });
+                  dispatch({ type: 'CLEAR_CART' });
+                  state.wishlist.forEach(item => {
+                    dispatch({ type: 'REMOVE_FROM_WISHLIST', payload: item.product.id });
+                  });
+                  
+                  // Show success notification
+                  showNotification({
+                    type: 'success',
+                    title: 'All Items Added!',
+                    message: `${itemCount} item${itemCount > 1 ? 's' : ''} have been moved from wishlist to cart.`,
+                    duration: 4000
+                  });
+                }
               }}
               className="w-full py-3 bg-[#65E856] text-white font-bold rounded-lg hover:bg-[#56d947] transition-colors duration-200"
             >

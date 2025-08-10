@@ -7,7 +7,7 @@ export const products: Product[] = [
     description: 'High-quality sound with noise cancellation and premium comfort for all-day listening.',
     image: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=500',
     rating: 4.8,
-    reviews: 256,
+    reviews: 0,
     brand: 'AudioTech',
     category: 'Electronics',
     categoryColor: 'bg-blue-100 text-blue-800',

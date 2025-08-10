@@ -2,6 +2,7 @@ import React from 'react';
 import { Star, Heart, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useNotification } from '../context/NotificationContext';
 import { Product } from '../types';
 
 interface ProductCardProps {
@@ -10,6 +11,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { state, dispatch } = useApp();
+  const { showNotification } = useNotification();
   
   const isInWishlist = state.wishlist.some(item => item.product.id === product.id);
   
@@ -27,6 +29,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     e.preventDefault();
     e.stopPropagation();
     dispatch({ type: 'ADD_TO_CART', payload: product });
+    
+    // Show success notification
+    showNotification({
+      type: 'success',
+      title: 'Added to Cart!',
+      message: `${product.name} has been successfully added to your cart.`,
+      duration: 3000
+    });
   };
 
   const renderStars = (rating: number) => {

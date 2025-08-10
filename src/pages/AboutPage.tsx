@@ -1,5 +1,6 @@
 import React from 'react';
 import { Users, Target, Award, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const AboutPage = () => {
   return (
@@ -208,9 +209,12 @@ const AboutPage = () => {
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Join thousands of users who are already enjoying amazing free products from top brands.
           </p>
-          <button className="px-8 py-4 bg-[#65E856] text-white font-bold text-lg rounded-full hover:bg-[#56d947] transition-all duration-300 transform hover:scale-105 shadow-2xl">
+          <Link 
+            to="/explore" 
+            className="inline-block px-8 py-4 bg-[#65E856] text-white font-bold text-lg rounded-full hover:bg-[#56d947] transition-all duration-300 transform hover:scale-105 shadow-2xl"
+          >
             Explore Products Now
-          </button>
+          </Link>
         </div>
       </section>
     </div>

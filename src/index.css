@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .clip-half {
+    clip-path: inset(0 50% 0 0);
+  }
+}

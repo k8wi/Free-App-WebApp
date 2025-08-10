@@ -2,16 +2,29 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useNotification } from '../context/NotificationContext';
 
 const CartPage = () => {
   const { state, dispatch } = useApp();
+  const { showNotification } = useNotification();
 
   const updateQuantity = (productId: number, newQuantity: number) => {
     dispatch({ type: 'UPDATE_CART_QUANTITY', payload: { productId, quantity: newQuantity } });
   };
 
   const removeFromCart = (productId: number) => {
-    dispatch({ type: 'REMOVE_FROM_CART', payload: productId });
+    const cartItem = state.cart.find(item => item.product.id === productId);
+    if (cartItem) {
+      dispatch({ type: 'REMOVE_FROM_CART', payload: productId });
+      
+      // Show info notification
+      showNotification({
+        type: 'info',
+        title: 'Removed from Cart',
+        message: `${cartItem.product.name} has been removed from your cart.`,
+        duration: 3000
+      });
+    }
   };
 
   const totalItems = state.cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -25,7 +38,7 @@ const CartPage = () => {
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h1>
           <p className="text-gray-600 mb-8">Discover amazing free products and start claiming them!</p>
           <Link 
-            to="/" 
+            to="/explore" 
             className="inline-flex items-center space-x-2 px-6 py-3 bg-[#65E856] text-white font-medium rounded-lg hover:bg-[#56d947] transition-colors duration-200"
           >
             <span>Explore Products</span>
@@ -42,7 +55,7 @@ const CartPage = () => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <Link 
-              to="/" 
+              to="/explore" 
               className="inline-flex items-center space-x-2 text-gray-600 hover:text-[#65E856] mb-4 transition-colors duration-200"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -149,16 +162,19 @@ const CartPage = () => {
                 </div>
               </div>
 
-              <button className="w-full py-4 bg-[#65E856] text-white font-bold rounded-lg hover:bg-[#56d947] transition-all duration-200 transform hover:scale-105 shadow-lg">
+              <Link 
+                to="/checkout"
+                className="w-full py-4 bg-[#65E856] text-white font-bold rounded-lg hover:bg-[#56d947] transition-all duration-200 transform hover:scale-105 shadow-lg text-center block"
+              >
                 Proceed to Checkout
-              </button>
+              </Link>
 
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-500 mb-4">
                   🎉 You're saving ${totalValue.toFixed(2)} with these free products!
                 </p>
                 <Link 
-                  to="/" 
+                  to="/explore" 
                   className="text-[#65E856] hover:underline text-sm font-medium"
                 >
                   Continue shopping

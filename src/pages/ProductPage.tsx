@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, Heart, ShoppingCart, ArrowLeft, Check, Truck, Shield, RotateCcw } from 'lucide-react';
+import { Star, Heart, ShoppingCart, ArrowLeft, Check, Truck, Shield, RotateCcw, MessageCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useNotification } from '../context/NotificationContext';
 import { products } from '../data/products';
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
   const { state, dispatch } = useApp();
+  const { showNotification } = useNotification();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [activeTab, setActiveTab] = useState<'features' | 'specifications' | 'reviews'>('features');
 
   const product = products.find(p => p.id === parseInt(id || '0'));
 
@@ -32,6 +35,14 @@ const ProductPage = () => {
     for (let i = 0; i < quantity; i++) {
       dispatch({ type: 'ADD_TO_CART', payload: product });
     }
+    
+    // Show success notification
+    showNotification({
+      type: 'success',
+      title: 'Added to Cart!',
+      message: `${quantity > 1 ? `${quantity}x ` : ''}${product.name} has been successfully added to your cart.`,
+      duration: 3000
+    });
   };
 
   const handleToggleWishlist = () => {
@@ -49,15 +60,15 @@ const ProductPage = () => {
 
     for (let i = 0; i < fullStars; i++) {
       stars.push(
-        <Star key={i} className="h-5 w-5 fill-[#65E856] text-[#65E856]" />
+        <Star key={i} className="h-4 w-4 fill-[#65E856] text-[#65E856]" />
       );
     }
 
     if (hasHalfStar) {
       stars.push(
         <div key="half" className="relative">
-          <Star className="h-5 w-5 text-gray-300" />
-          <Star className="h-5 w-5 fill-[#65E856] text-[#65E856] absolute top-0 left-0 clip-half" />
+          <Star className="h-4 w-4 text-gray-300" />
+          <Star className="h-4 w-4 fill-[#65E856] text-[#65E856] absolute top-0 left-0 clip-half" />
         </div>
       );
     }
@@ -65,11 +76,162 @@ const ProductPage = () => {
     const remainingStars = 5 - Math.ceil(rating);
     for (let i = 0; i < remainingStars; i++) {
       stars.push(
-        <Star key={`empty-${i}`} className="h-5 w-5 text-gray-300" />
+        <Star key={`empty-${i}`} className="h-4 w-4 text-gray-300" />
       );
     }
 
     return stars;
+  };
+
+  // Mock reviews data - in a real app, this would come from an API
+  const mockReviews = [
+    {
+      id: 1,
+      userName: 'Sarah M.',
+      rating: 5,
+      date: '2024-01-15',
+      comment: 'Absolutely love this product! The quality is outstanding and it exceeded my expectations.'
+    },
+    {
+      id: 2,
+      userName: 'Mike R.',
+      rating: 4,
+      date: '2024-01-10',
+      comment: 'Great product overall. Very satisfied with the purchase and would recommend to others.'
+    },
+    {
+      id: 3,
+      userName: 'Emily T.',
+      rating: 5,
+      date: '2024-01-05',
+      comment: 'This is exactly what I was looking for. Fast shipping and excellent customer service.'
+    }
+  ];
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'features':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Key Features</h3>
+              <ul className="space-y-3">
+                {product.features?.map((feature, index) => (
+                  <li key={index} className="flex items-start space-x-3">
+                    <Check className="h-5 w-5 text-[#65E856] mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Why Choose This Product?</h3>
+              <div className="bg-gray-50 rounded-lg p-6">
+                <p className="text-gray-700 leading-relaxed">
+                  {product.description}
+                </p>
+                <div className="mt-4 flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
+                    {renderStars(product.rating)}
+                  </div>
+                  <span className="text-sm text-gray-600">
+                    {product.rating} out of 5 ({product.reviews} reviews)
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'specifications':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Technical Specifications</h3>
+              <div className="bg-gray-50 rounded-lg p-6">
+                <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {product.specifications && Object.entries(product.specifications).map(([key, value]) => (
+                    <div key={key} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                      <dt className="text-gray-600 font-medium">{key}:</dt>
+                      <dd className="text-gray-900 font-semibold">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Product Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <p className="text-sm text-gray-600">Brand</p>
+                  <p className="text-lg font-semibold text-gray-900">{product.brand}</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <p className="text-sm text-gray-600">Category</p>
+                  <p className="text-lg font-semibold text-gray-900">{product.category}</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <p className="text-sm text-gray-600">Product ID</p>
+                  <p className="text-lg font-semibold text-gray-900">#{product.id}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'reviews':
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-gray-900">Customer Reviews</h3>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  {renderStars(product.rating)}
+                  <span className="text-lg font-semibold text-gray-900">{product.rating}</span>
+                </div>
+                <span className="text-gray-600">({product.reviews} reviews)</span>
+              </div>
+            </div>
+
+            {product.reviews > 0 ? (
+              <div className="space-y-4">
+                {mockReviews.map((review) => (
+                  <div key={review.id} className="bg-gray-50 rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-[#65E856] rounded-full flex items-center justify-center">
+                          <span className="text-white font-semibold text-sm">
+                            {review.userName.charAt(0)}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">{review.userName}</p>
+                          <div className="flex items-center space-x-1">
+                            {renderStars(review.rating)}
+                          </div>
+                        </div>
+                      </div>
+                      <span className="text-sm text-gray-500">{review.date}</span>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <MessageCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <h4 className="text-lg font-medium text-gray-900 mb-2">No Reviews Yet</h4>
+                <p className="text-gray-600">Be the first to review this product!</p>
+              </div>
+            )}
+          </div>
+        );
+
+      default:
+        return null;
+    }
   };
 
   const productImages = product.images || [product.image];
@@ -231,45 +393,41 @@ const ProductPage = () => {
         <div className="mt-16">
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8">
-              <button className="py-4 px-1 border-b-2 border-[#65E856] text-[#65E856] font-medium">
+              <button 
+                onClick={() => setActiveTab('features')}
+                className={`py-4 px-1 border-b-2 transition-colors duration-200 ${
+                  activeTab === 'features'
+                    ? 'border-[#65E856] text-[#65E856]'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
                 Features
               </button>
-              <button className="py-4 px-1 text-gray-500 hover:text-gray-700">
+              <button 
+                onClick={() => setActiveTab('specifications')}
+                className={`py-4 px-1 border-b-2 transition-colors duration-200 ${
+                  activeTab === 'specifications'
+                    ? 'border-[#65E856] text-[#65E856]'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
                 Specifications
               </button>
-              <button className="py-4 px-1 text-gray-500 hover:text-gray-700">
+              <button 
+                onClick={() => setActiveTab('reviews')}
+                className={`py-4 px-1 border-b-2 transition-colors duration-200 ${
+                  activeTab === 'reviews'
+                    ? 'border-[#65E856] text-[#65E856]'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
                 Reviews
               </button>
             </nav>
           </div>
 
           <div className="py-8">
-            {/* Features Tab */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Key Features</h3>
-                <ul className="space-y-3">
-                  {product.features?.map((feature, index) => (
-                    <li key={index} className="flex items-start space-x-3">
-                      <Check className="h-5 w-5 text-[#65E856] mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Specifications</h3>
-                <dl className="space-y-3">
-                  {product.specifications && Object.entries(product.specifications).map(([key, value]) => (
-                    <div key={key} className="flex justify-between">
-                      <dt className="text-gray-600">{key}:</dt>
-                      <dd className="text-gray-900 font-medium">{value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            </div>
+            {renderTabContent()}
           </div>
         </div>
       </div>

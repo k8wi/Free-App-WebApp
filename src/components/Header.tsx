@@ -101,9 +101,9 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link 
-              to="/#explore" 
+              to="/explore" 
               className={`text-gray-700 hover:text-[#65E856] transition-colors duration-200 font-medium ${
-                location.pathname === '/' ? 'text-[#65E856]' : ''
+                location.pathname === '/explore' ? 'text-[#65E856]' : ''
               }`}
             >
               Explore
@@ -285,7 +285,7 @@ const Header = () => {
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-[#65E856] focus:border-transparent outline-none"
                 />
               </div>
-              <Link to="/#explore" className="block px-3 py-2 text-gray-700 font-medium hover:text-[#65E856] transition-colors duration-200">
+              <Link to="/explore" className="block px-3 py-2 text-gray-700 font-medium hover:text-[#65E856] transition-colors duration-200">
                 Explore
               </Link>
               <Link to="/about" className="block px-3 py-2 text-gray-700 font-medium hover:text-[#65E856] transition-colors duration-200">

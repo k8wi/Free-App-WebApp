@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Sparkles, Gift, Users, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Hero = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -180,15 +181,15 @@ const Hero = () => {
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >
-            <button className="group px-8 py-4 bg-[#65E856] text-white font-bold text-lg rounded-full hover:bg-[#56d947] transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-green-500/25 flex items-center space-x-2">
+            <Link to="/explore" className="group px-8 py-4 bg-[#65E856] text-white font-bold text-lg rounded-full hover:bg-[#56d947] transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-green-500/25 flex items-center space-x-2">
               <Gift className="h-6 w-6 group-hover:rotate-12 transition-transform duration-300" />
               <span>Grab now!</span>
               <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform duration-300" />
-            </button>
+            </Link>
             
-            <button className="px-8 py-4 border-2 border-white/30 text-white font-bold text-lg rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm hover:scale-105 transform">
+            <Link to="/about" className="px-8 py-4 border-2 border-white/30 text-white font-bold text-lg rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm hover:scale-105 transform">
               Learn More
-            </button>
+            </Link>
           </div>
 
           {/* Stats */}
